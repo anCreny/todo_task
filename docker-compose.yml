@@ -6,6 +6,7 @@ services:
     container_name: postgres
     image: postgres:14.5-alpine
     restart: always
+    command: ["postgres", "-c", "hba_file=/etc/postgresql/pg_hba.conf"]
     logging:
       driver: json-file
       options:
@@ -17,6 +18,7 @@ services:
       POSTGRES_DB: todo_task
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
     ports:
       - "5432:5432"
     healthcheck:
