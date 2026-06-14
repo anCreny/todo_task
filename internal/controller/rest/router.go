@@ -2,6 +2,7 @@ package rest
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -61,11 +62,7 @@ func registerWebRoutes(router *gin.Engine) {
 
 	page := func(fileName string) gin.HandlerFunc {
 		return func(ctx *gin.Context) {
-			if isMobileRequest(ctx) {
-				ctx.File("./web/mobile/" + fileName)
-				return
-			}
-			ctx.File("./web/" + fileName)
+			serveWebPage(ctx, fileName)
 		}
 	}
 
@@ -95,12 +92,44 @@ func registerWebRoutes(router *gin.Engine) {
 			return
 		}
 
-		if isMobileRequest(ctx) {
-			ctx.File("./web/mobile/index.html")
-			return
-		}
-		ctx.File("./web/index.html")
+		serveWebPage(ctx, "index.html")
 	})
+}
+
+func fileExists(fileName string) bool {
+	info, err := os.Stat(fileName)
+	return err == nil && !info.IsDir()
+}
+
+func serveWebPage(ctx *gin.Context, fileName string) {
+	desktopFileName := "./web/" + fileName
+
+	if !isMobileRequest(ctx) {
+		ctx.File(desktopFileName)
+		return
+	}
+
+	mobileFileName := "./web/mobile/" + fileName
+	if fileExists(mobileFileName) {
+		ctx.File(mobileFileName)
+		return
+	}
+
+	page, err := os.ReadFile(desktopFileName)
+	if err != nil {
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+
+	html := string(page)
+	if fileExists("./web/mobile/css/style.css") {
+		html = strings.ReplaceAll(html, `href="/css/style.css"`, `href="/mobile/css/style.css"`)
+	}
+	if fileExists("./web/mobile/js/app.js") {
+		html = strings.ReplaceAll(html, `src="/js/app.js"`, `src="/mobile/js/app.js"`)
+	}
+
+	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(html))
 }
 
 func isMobileRequest(ctx *gin.Context) bool {
