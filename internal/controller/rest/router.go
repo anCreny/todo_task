@@ -3,6 +3,7 @@ package rest
 import (
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -54,15 +55,17 @@ func (r *Rest) Run() *gin.Engine {
 }
 
 func registerWebRoutes(router *gin.Engine) {
-	router.Static("/css", "./web/css")
-	router.Static("/js", "./web/js")
-	router.Static("/mobile/css", "./web/mobile/css")
-	router.Static("/mobile/js", "./web/mobile/js")
-	router.StaticFile("/favicon.ico", "./web/favicon.ico")
+	webRoot := resolveWebRoot()
+
+	router.Static("/css", filepath.Join(webRoot, "css"))
+	router.Static("/js", filepath.Join(webRoot, "js"))
+	router.Static("/mobile/css", filepath.Join(webRoot, "mobile", "css"))
+	router.Static("/mobile/js", filepath.Join(webRoot, "mobile", "js"))
+	router.StaticFile("/favicon.ico", filepath.Join(webRoot, "favicon.ico"))
 
 	page := func(fileName string) gin.HandlerFunc {
 		return func(ctx *gin.Context) {
-			serveWebPage(ctx, fileName)
+			serveWebPage(ctx, webRoot, fileName)
 		}
 	}
 
@@ -92,7 +95,7 @@ func registerWebRoutes(router *gin.Engine) {
 			return
 		}
 
-		serveWebPage(ctx, "index.html")
+		serveWebPage(ctx, webRoot, "index.html")
 	})
 }
 
@@ -101,8 +104,30 @@ func fileExists(fileName string) bool {
 	return err == nil && !info.IsDir()
 }
 
-func serveWebPage(ctx *gin.Context, fileName string) {
-	desktopFileName := "./web/" + fileName
+func resolveWebRoot() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "./web"
+	}
+
+	for {
+		candidate := filepath.Join(wd, "web")
+		if fileExists(filepath.Join(candidate, "index.html")) {
+			return candidate
+		}
+
+		parent := filepath.Dir(wd)
+		if parent == wd {
+			break
+		}
+		wd = parent
+	}
+
+	return "./web"
+}
+
+func serveWebPage(ctx *gin.Context, webRoot, fileName string) {
+	desktopFileName := filepath.Join(webRoot, fileName)
 
 	if !isMobileRequest(ctx) {
 		ctx.File(desktopFileName)
@@ -116,10 +141,10 @@ func serveWebPage(ctx *gin.Context, fileName string) {
 	}
 
 	html := string(page)
-	if fileExists("./web/mobile/css/style.css") {
+	if fileExists(filepath.Join(webRoot, "mobile", "css", "style.css")) {
 		html = strings.ReplaceAll(html, `href="/css/style.css"`, `href="/mobile/css/style.css"`)
 	}
-	if fileExists("./web/mobile/js/app.js") {
+	if fileExists(filepath.Join(webRoot, "mobile", "js", "app.js")) {
 		html = strings.ReplaceAll(html, `src="/js/app.js"`, `src="/mobile/js/app.js"`)
 	}
 
