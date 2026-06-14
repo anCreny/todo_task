@@ -23,14 +23,14 @@
         <h1>Вход</h1>
         <p>Откройте свои доски и продолжите работу с задачами.</p>
         <div class="alert" data-alert></div>
-        <form class="form-grid" id="login-form">
+        <form class="form-grid" id="login-form" novalidate>
           <label class="field">
             <span>Логин</span>
             <input class="input" name="login" autocomplete="username" maxlength="10" required>
           </label>
           <label class="field">
             <span>Пароль</span>
-            <input class="input" name="password" type="password" autocomplete="current-password" maxlength="30" required>
+            <input class="input" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="30" required>
           </label>
           <button class="button symbol-button" type="submit" aria-label="Войти" title="Войти">
             <span aria-hidden="true">&gt;</span>

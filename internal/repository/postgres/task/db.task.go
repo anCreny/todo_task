@@ -30,6 +30,7 @@ func (s *TaskStorage) Get(ctx context.Context, opts entity.GetTasksOpts) (res en
 	query = pgutils.SearchEq(query, "tasks.column_id", opts.ColumnID)
 	query = pgutils.SearchEq(query, "tasks.type_id", opts.TypeID)
 	query = pgutils.SearchMultiEq(query, "tasks.column_id", opts.ColumnIDs)
+	query = query.OrderBy("tasks.created_at ASC", "tasks.id ASC")
 
 	sql, args, err := query.ToSql()
 

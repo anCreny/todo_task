@@ -173,6 +173,44 @@ function handleFatal(error) {
   notify(error?.message || "Не удалось выполнить действие");
 }
 
+function validateLogin(login) {
+  if (!login) {
+    return "Введите логин";
+  }
+  if (!/^[a-z0-9]+$/.test(login)) {
+    return "Логин может содержать только строчные латинские буквы и цифры";
+  }
+  if (login.length > 10) {
+    return "Логин не должен быть длиннее 10 символов";
+  }
+  return "";
+}
+
+function validatePassword(password, label = "Пароль") {
+  if (!password) {
+    return `${label} не заполнен`;
+  }
+  if (password.length < 8) {
+    return `${label} должен быть не короче 8 символов`;
+  }
+  if (password.length > 30) {
+    return `${label} не должен быть длиннее 30 символов`;
+  }
+  if (!/[a-z]/.test(password)) {
+    return `${label} должен содержать хотя бы одну строчную латинскую букву`;
+  }
+  if (!/[A-Z]/.test(password)) {
+    return `${label} должен содержать хотя бы одну заглавную латинскую букву`;
+  }
+  if (!/[0-9]/.test(password)) {
+    return `${label} должен содержать хотя бы одну цифру`;
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return `${label} должен содержать хотя бы один специальный символ`;
+  }
+  return "";
+}
+
 function setBusy(form, isBusy) {
   $all("button, input, select, textarea", form).forEach((element) => {
     element.disabled = isBusy;
@@ -374,6 +412,17 @@ async function initLogin() {
     try {
       const login = form.elements.login.value.trim().toLowerCase();
       const password = form.elements.password.value;
+      const loginError = validateLogin(login);
+      if (loginError) {
+        notify(loginError);
+        setBusy(form, false);
+        return;
+      }
+      if (!password) {
+        notify("Введите пароль");
+        setBusy(form, false);
+        return;
+      }
       const tokens = await api.auth.login(login, password);
       saveSession(tokens);
       window.location.assign(getNextPath());
@@ -394,6 +443,18 @@ async function initRegister() {
     const login = form.elements.login.value.trim().toLowerCase();
     const password = form.elements.password.value;
     const passwordConfirm = form.elements.password_confirm.value;
+    const loginError = validateLogin(login);
+    const passwordError = validatePassword(password);
+
+    if (loginError) {
+      notify(loginError);
+      return;
+    }
+
+    if (passwordError) {
+      notify(passwordError);
+      return;
+    }
 
     if (password !== passwordConfirm) {
       notify("Пароли не совпадают");
@@ -681,6 +742,17 @@ async function initSettings() {
 
     const oldPassword = form.elements.old_password.value;
     const newPassword = form.elements.new_password.value;
+    const newPasswordError = validatePassword(newPassword, "Новый пароль");
+
+    if (!oldPassword) {
+      notify("Текущий пароль не заполнен");
+      return;
+    }
+
+    if (newPasswordError) {
+      notify(newPasswordError);
+      return;
+    }
 
     if (oldPassword === newPassword) {
       notify("Новый пароль должен отличаться от текущего");
@@ -848,6 +920,8 @@ function toggleBoardEditMode() {
 }
 
 function openModal(modal) {
+  document.body.dataset.modalScrollX = String(window.scrollX);
+  document.body.dataset.modalScrollY = String(window.scrollY);
   modal.classList.remove("hidden");
   document.body.classList.add("is-modal-open");
 }
@@ -857,6 +931,11 @@ function closeModal(modal) {
 }
 
 function closeBoardModals() {
+  const scrollX = Number(document.body.dataset.modalScrollX || 0);
+  const scrollY = Number(document.body.dataset.modalScrollY || 0);
+  if (document.activeElement && typeof document.activeElement.blur === "function") {
+    document.activeElement.blur();
+  }
   closeModal($("#task-modal"));
   closeModal($("#column-modal"));
   document.body.classList.remove("is-modal-open");
@@ -864,6 +943,11 @@ function closeBoardModals() {
   boardState.selectedColumnID = "";
   $("#task-modal-form").removeAttribute("data-mode");
   $("#column-modal-form").removeAttribute("data-mode");
+  delete document.body.dataset.modalScrollX;
+  delete document.body.dataset.modalScrollY;
+  requestAnimationFrame(() => {
+    window.scrollTo(scrollX, scrollY);
+  });
 }
 
 function setTaskModalEditable() {

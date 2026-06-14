@@ -13,7 +13,7 @@ func CheckBoard(boardService board.Board) gin.HandlerFunc {
 
 		userID, exists := c.Get("user")
 		if !exists {
-			c.JSON(400, gin.H{"error": "user not found"})
+			c.JSON(400, gin.H{"error": "пользователь не найден"})
 			c.Abort()
 			return
 		}
@@ -22,7 +22,7 @@ func CheckBoard(boardService board.Board) gin.HandlerFunc {
 		board, err := boardService.GetByID(c.Request.Context(), userID.(string), boardID)
 		if err != nil {
 			if errors.Is(err, entity.ErrNotFound) {
-				c.JSON(404, gin.H{"error": "board not found"})
+				c.JSON(404, gin.H{"error": "доска не найдена"})
 				c.Abort()
 				return
 			}

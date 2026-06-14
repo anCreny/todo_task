@@ -27,3 +27,5 @@ vendor
 main
 
 portal
+
+.env

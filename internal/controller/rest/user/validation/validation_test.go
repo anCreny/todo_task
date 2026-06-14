@@ -15,13 +15,14 @@ func TestValidateUserCreate(t *testing.T) {
 		req     entity.UserCreate
 		wantErr bool
 	}{
-		{name: "valid", req: entity.UserCreate{Login: "bob", Password: "pwd"}},
-		{name: "empty login", req: entity.UserCreate{Password: "pwd"}, wantErr: true},
-		{name: "duplicate", req: entity.UserCreate{Login: "alice", Password: "pwd"}, wantErr: true},
-		{name: "bad login", req: entity.UserCreate{Login: "bob!", Password: "pwd"}, wantErr: true},
-		{name: "long login", req: entity.UserCreate{Login: strings.Repeat("a", 11), Password: "pwd"}, wantErr: true},
+		{name: "valid", req: entity.UserCreate{Login: "bob", Password: "Valid123!"}},
+		{name: "empty login", req: entity.UserCreate{Password: "Valid123!"}, wantErr: true},
+		{name: "duplicate", req: entity.UserCreate{Login: "alice", Password: "Valid123!"}, wantErr: true},
+		{name: "bad login", req: entity.UserCreate{Login: "bob!", Password: "Valid123!"}, wantErr: true},
+		{name: "long login", req: entity.UserCreate{Login: strings.Repeat("a", 11), Password: "Valid123!"}, wantErr: true},
 		{name: "empty password", req: entity.UserCreate{Login: "bob"}, wantErr: true},
 		{name: "long password", req: entity.UserCreate{Login: "bob", Password: strings.Repeat("a", 31)}, wantErr: true},
+		{name: "weak password", req: entity.UserCreate{Login: "bob", Password: "password"}, wantErr: true},
 	}
 
 	for _, tt := range tests {
@@ -41,12 +42,13 @@ func TestValidateUserPasswordChange(t *testing.T) {
 		current string
 		wantErr bool
 	}{
-		{name: "valid", req: dto.UserPasswordChange{OldPassword: "old", NewPassword: "new"}, current: "old"},
-		{name: "wrong old", req: dto.UserPasswordChange{OldPassword: "bad", NewPassword: "new"}, current: "old", wantErr: true},
-		{name: "empty old", req: dto.UserPasswordChange{NewPassword: "new"}, current: "", wantErr: true},
-		{name: "empty new", req: dto.UserPasswordChange{OldPassword: "old"}, current: "old", wantErr: true},
-		{name: "same", req: dto.UserPasswordChange{OldPassword: "old", NewPassword: "old"}, current: "old", wantErr: true},
-		{name: "long new", req: dto.UserPasswordChange{OldPassword: "old", NewPassword: strings.Repeat("a", 31)}, current: "old", wantErr: true},
+		{name: "valid", req: dto.UserPasswordChange{OldPassword: "OldPass1!", NewPassword: "NewPass1!"}, current: "OldPass1!"},
+		{name: "wrong old", req: dto.UserPasswordChange{OldPassword: "BadPass1!", NewPassword: "NewPass1!"}, current: "OldPass1!", wantErr: true},
+		{name: "empty old", req: dto.UserPasswordChange{NewPassword: "NewPass1!"}, current: "", wantErr: true},
+		{name: "empty new", req: dto.UserPasswordChange{OldPassword: "OldPass1!"}, current: "OldPass1!", wantErr: true},
+		{name: "same", req: dto.UserPasswordChange{OldPassword: "OldPass1!", NewPassword: "OldPass1!"}, current: "OldPass1!", wantErr: true},
+		{name: "long new", req: dto.UserPasswordChange{OldPassword: "OldPass1!", NewPassword: strings.Repeat("a", 31)}, current: "OldPass1!", wantErr: true},
+		{name: "weak new", req: dto.UserPasswordChange{OldPassword: "OldPass1!", NewPassword: "password"}, current: "OldPass1!", wantErr: true},
 	}
 
 	for _, tt := range tests {

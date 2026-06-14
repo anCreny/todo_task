@@ -24,7 +24,7 @@ func (s *TaskService) Get(ctx context.Context, boardID string, opts entity.GetTa
 	}
 
 	if len(columns) == 0 {
-		return nil, fmt.Errorf("invalid board id: %s", boardID)
+		return nil, fmt.Errorf("некорректная доска: %s", boardID)
 	}
 
 	columnIDs := columns.GetIDs()
@@ -50,7 +50,7 @@ func (s *TaskService) GetByID(ctx context.Context, boardID, taskID string) (res 
 	}
 
 	if len(columns) == 0 {
-		return entity.Task{}, fmt.Errorf("invalid board id: %s", boardID)
+		return entity.Task{}, fmt.Errorf("некорректная доска: %s", boardID)
 	}
 
 	IDs := columns.GetIDs()
@@ -70,13 +70,13 @@ func (s *TaskService) GetByColumnID(ctx context.Context, boardID, columnID strin
 	}
 
 	if len(columns) == 0 {
-		return nil, fmt.Errorf("invalid board id: %s", boardID)
+		return nil, fmt.Errorf("некорректная доска: %s", boardID)
 	}
 
 	IDs := columns.GetIDs()
 
 	if !slices.Contains(IDs, columnID) {
-		return nil, fmt.Errorf("invalid column id: %s", columnID)
+		return nil, fmt.Errorf("некорректная колонка: %s", columnID)
 	}
 
 	tasks, err := s.Get(ctx, boardID, entity.GetTasksOpts{ColumnID: columnID})
@@ -103,7 +103,7 @@ func (s *TaskService) GetByBoardID(ctx context.Context, boardID string) (res ent
 	}
 
 	if len(columns) == 0 {
-		return nil, fmt.Errorf("invalid board id: %s", boardID)
+		return nil, fmt.Errorf("некорректная доска: %s", boardID)
 	}
 
 	columnIDs := columns.GetIDs()
@@ -196,7 +196,7 @@ func (s *TaskService) Move(ctx context.Context, boardID, taskID, newColumnID str
 	}
 
 	if len(columns) == 0 {
-		return entity.Task{}, fmt.Errorf("invalid column id: %s", newColumnID)
+		return entity.Task{}, fmt.Errorf("некорректная колонка: %s", newColumnID)
 	}
 
 	task, err := s.GetByID(ctx, boardID, taskID)

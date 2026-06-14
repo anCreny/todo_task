@@ -8,25 +8,21 @@ import (
 
 func ValidateUserPasswordChange(pwdChange dto.UserPasswordChange, userCurrentPassword string) error {
 
-	if userCurrentPassword != pwdChange.OldPassword {
-		return errors.New("old password is incorrect")
+	if pwdChange.OldPassword == "" {
+		return errors.New("текущий пароль не заполнен")
 	}
 
-	if pwdChange.OldPassword == "" {
-		return errors.New("old password is empty")
+	if userCurrentPassword != pwdChange.OldPassword {
+		return errors.New("текущий пароль указан неверно")
 	}
 
 	if pwdChange.NewPassword == "" {
-		return errors.New("new password is empty")
+		return errors.New("новый пароль не заполнен")
 	}
 
 	if pwdChange.NewPassword == pwdChange.OldPassword {
-		return errors.New("new password is equal to old password")
+		return errors.New("новый пароль должен отличаться от текущего")
 	}
 
-	if len(pwdChange.NewPassword) > 30 {
-		return errors.New("new password length is more then 30 symbols")
-	}
-
-	return nil
+	return ValidatePassword(pwdChange.NewPassword, "новый пароль")
 }

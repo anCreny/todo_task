@@ -41,17 +41,17 @@
           <div class="panel-header">
             <div>
               <h2>Смена пароля</h2>
-              <p class="panel-subtitle">Новый пароль должен отличаться от текущего.</p>
+          <p class="panel-subtitle">Новый пароль: 8-30 символов, строчная и заглавная буква, цифра и спецсимвол.</p>
             </div>
           </div>
-          <form class="form-grid" id="password-form">
+          <form class="form-grid" id="password-form" novalidate>
             <label class="field">
               <span>Текущий пароль</span>
-              <input class="input" name="old_password" type="password" autocomplete="current-password" maxlength="30" required>
+              <input class="input" name="old_password" type="password" autocomplete="current-password" minlength="8" maxlength="30" required>
             </label>
             <label class="field">
               <span>Новый пароль</span>
-              <input class="input" name="new_password" type="password" autocomplete="new-password" maxlength="30" required>
+              <input class="input" name="new_password" type="password" autocomplete="new-password" minlength="8" maxlength="30" required>
             </label>
             <button class="button symbol-button" type="submit" aria-label="Сохранить пароль" title="Сохранить пароль">
               <span aria-hidden="true">✓</span>

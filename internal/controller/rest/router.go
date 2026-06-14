@@ -55,10 +55,16 @@ func (r *Rest) Run() *gin.Engine {
 func registerWebRoutes(router *gin.Engine) {
 	router.Static("/css", "./web/css")
 	router.Static("/js", "./web/js")
+	router.Static("/mobile/css", "./web/mobile/css")
+	router.Static("/mobile/js", "./web/mobile/js")
 	router.StaticFile("/favicon.ico", "./web/favicon.ico")
 
 	page := func(fileName string) gin.HandlerFunc {
 		return func(ctx *gin.Context) {
+			if isMobileRequest(ctx) {
+				ctx.File("./web/mobile/" + fileName)
+				return
+			}
 			ctx.File("./web/" + fileName)
 		}
 	}
@@ -80,7 +86,7 @@ func registerWebRoutes(router *gin.Engine) {
 
 	router.NoRoute(func(ctx *gin.Context) {
 		if strings.HasPrefix(ctx.Request.URL.Path, "/api/") {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "не найдено"})
 			return
 		}
 
@@ -89,6 +95,32 @@ func registerWebRoutes(router *gin.Engine) {
 			return
 		}
 
+		if isMobileRequest(ctx) {
+			ctx.File("./web/mobile/index.html")
+			return
+		}
 		ctx.File("./web/index.html")
 	})
+}
+
+func isMobileRequest(ctx *gin.Context) bool {
+	userAgent := strings.ToLower(ctx.Request.UserAgent())
+	mobileMarkers := []string{
+		"android",
+		"iphone",
+		"ipod",
+		"ipad",
+		"blackberry",
+		"iemobile",
+		"opera mini",
+		"mobile",
+	}
+
+	for _, marker := range mobileMarkers {
+		if strings.Contains(userAgent, marker) {
+			return true
+		}
+	}
+
+	return false
 }

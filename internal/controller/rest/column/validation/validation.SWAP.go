@@ -8,7 +8,7 @@ import (
 
 func ValidateColumnSwap(columnA entity.Column, columnB entity.Column) error {
 	if columnA.ID == columnB.ID {
-		return fmt.Errorf("can't swap column with itself")
+		return fmt.Errorf("нельзя поменять колонку саму с собой")
 	}
 
 	return nil

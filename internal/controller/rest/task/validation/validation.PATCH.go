@@ -11,18 +11,18 @@ func ValidateTaskUpdate(taskUpdate dto.TaskPATCH, validTypeIDs []string) error {
 	if taskUpdate.Label != nil {
 		label := *taskUpdate.Label
 		if len(label) > 50 {
-			return errors.New("label is too long")
+			return errors.New("название задачи не должно быть длиннее 50 символов")
 		}
 
 		if label == "" {
-			return errors.New("label is empty")
+			return errors.New("название задачи не заполнено")
 		}
 	}
 
 	if taskUpdate.Description != nil {
 		description := *taskUpdate.Description
 		if len(description) > 300 {
-			return errors.New("description is too long")
+			return errors.New("описание задачи не должно быть длиннее 300 символов")
 		}
 	}
 
@@ -30,7 +30,7 @@ func ValidateTaskUpdate(taskUpdate dto.TaskPATCH, validTypeIDs []string) error {
 		if slices.Contains(validTypeIDs, *taskUpdate.TypeID) {
 			return nil
 		}
-		return errors.New("type_id incorrect")
+		return errors.New("выбран некорректный тип задачи")
 	}
 
 	return nil

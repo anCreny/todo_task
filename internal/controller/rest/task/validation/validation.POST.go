@@ -9,11 +9,11 @@ import (
 
 func ValidateTaskCreate(taskCreate dto.TaskPOST, boardColumns entity.Columns, userTypes entity.Types) error {
 	if taskCreate.Label == "" {
-		return errors.New("label is empty")
+		return errors.New("название задачи не заполнено")
 	}
 
 	if len(taskCreate.Label) > 50 {
-		return errors.New("label is too long")
+		return errors.New("название задачи не должно быть длиннее 50 символов")
 	}
 
 	if taskCreate.ColumnID != "" {
@@ -25,12 +25,12 @@ func ValidateTaskCreate(taskCreate dto.TaskPOST, boardColumns entity.Columns, us
 			}
 		}
 		if !columnFound {
-			return errors.New("column_id incorrect")
+			return errors.New("выбрана некорректная колонка")
 		}
 	}
 
 	if len(taskCreate.Description) > 300 {
-		return errors.New("description is too long")
+		return errors.New("описание задачи не должно быть длиннее 300 символов")
 	}
 
 	if taskCreate.TypeID != "" {
@@ -42,7 +42,7 @@ func ValidateTaskCreate(taskCreate dto.TaskPOST, boardColumns entity.Columns, us
 			}
 		}
 		if !typeFound {
-			return errors.New("type_id incorrect")
+			return errors.New("выбран некорректный тип задачи")
 		}
 	}
 

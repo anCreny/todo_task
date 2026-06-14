@@ -12,24 +12,24 @@ func ValidateColumnUpdate(allBoardColumns entity.Columns, newColumn dto.ColumnPA
 	if newColumn.Name != nil {
 		name := *newColumn.Name
 		if name == "" {
-			return fmt.Errorf("name is empty")
+			return fmt.Errorf("название колонки не заполнено")
 		}
 
 		nameGroup := utils.NameGroup(allBoardColumns)
 		if _, ok := nameGroup[name]; ok {
-			return fmt.Errorf("column with name %s already exists", name)
+			return fmt.Errorf("колонка с названием %s уже существует", name)
 		}
 	}
 
 	if newColumn.OrderNumber != nil {
 		orderNumber := *newColumn.OrderNumber
 		if orderNumber <= 0 && orderNumber != -1 {
-			return fmt.Errorf("order number can't be below or eq 0")
+			return fmt.Errorf("порядок колонки должен быть больше 0")
 		}
 
 		orderNumberGroup := utils.OrderNumberGroup(allBoardColumns)
 		if _, ok := orderNumberGroup[orderNumber]; ok {
-			return fmt.Errorf("column with order number %d already exists", newColumn.OrderNumber)
+			return fmt.Errorf("колонка с порядком %d уже существует", orderNumber)
 		}
 	}
 

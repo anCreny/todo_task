@@ -10,11 +10,11 @@ func ValidateBoardCreate(boardCreate dto.BoardPOST) error {
 	name := boardCreate.Name
 
 	if name == "" {
-		return fmt.Errorf("name is empty")
+		return fmt.Errorf("название доски не заполнено")
 	}
 
 	if len(name) > 50 {
-		return fmt.Errorf("name is too long")
+		return fmt.Errorf("название доски не должно быть длиннее 50 символов")
 	}
 
 	return nil

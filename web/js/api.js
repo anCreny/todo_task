@@ -33,19 +33,68 @@ function getRefreshToken() {
 }
 
 function buildMessage(payload, fallback) {
+  let message = "";
+
   if (typeof payload === "string" && payload.trim()) {
-    return payload;
+    message = payload;
+  } else if (payload && typeof payload.error === "string") {
+    message = payload.error;
+  } else if (payload && typeof payload.debug === "string") {
+    message = payload.debug;
+  } else {
+    message = fallback;
   }
 
-  if (payload && typeof payload.error === "string") {
-    return payload.error;
+  return localizeErrorMessage(message || fallback);
+}
+
+function localizeErrorMessage(message) {
+  const text = String(message || "").trim();
+  const lower = text.toLowerCase();
+
+  const exact = new Map([
+    ["invalid-password", "Неверный логин или пароль"],
+    ["invalid-token-claims", "Сессия устарела. Войдите заново"],
+    ["invalid-refresh-token", "Сессия устарела. Войдите заново"],
+    ["not authenticated", "Нужно войти в аккаунт"],
+    ["not found", "Не найдено"],
+    ["login is empty", "Логин не заполнен"],
+    ["login is must have only [a-z] or [0-9]", "Логин может содержать только строчные латинские буквы и цифры"],
+    ["login length is more then 10 symbols", "Логин не должен быть длиннее 10 символов"],
+    ["password is empty", "Пароль не заполнен"],
+    ["password length is more then 30 symbols", "Пароль не должен быть длиннее 30 символов"],
+    ["old password is incorrect", "Текущий пароль указан неверно"],
+    ["old password is empty", "Текущий пароль не заполнен"],
+    ["new password is empty", "Новый пароль не заполнен"],
+    ["new password is equal to old password", "Новый пароль должен отличаться от текущего"],
+    ["new password length is more then 30 symbols", "Новый пароль не должен быть длиннее 30 символов"],
+  ]);
+
+  if (exact.has(lower)) {
+    return exact.get(lower);
   }
 
-  if (payload && typeof payload.debug === "string") {
-    return payload.debug;
+  if (lower.startsWith("http ")) {
+    return "Сервер вернул ошибку. Попробуйте еще раз";
   }
 
-  return fallback;
+  if (lower.includes("duplicate key") || lower.includes("already exists")) {
+    return "Такая запись уже существует";
+  }
+
+  if (lower.includes("invalid board id")) {
+    return "Некорректная доска";
+  }
+
+  if (lower.includes("invalid column id")) {
+    return "Некорректная колонка";
+  }
+
+  if (lower.includes("failed to fetch") || lower.includes("networkerror")) {
+    return "Не удалось подключиться к серверу";
+  }
+
+  return text || "Не удалось выполнить действие";
 }
 
 async function parseResponse(response) {

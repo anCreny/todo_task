@@ -12,16 +12,16 @@ func ValidateBoardUpdate(boardCreate dto.BoardPATCH, boards entity.Boards) error
 		name := *boardCreate.Name
 
 		if name == "" {
-			return fmt.Errorf("name is empty")
+			return fmt.Errorf("название доски не заполнено")
 		}
 
 		if len(name) > 50 {
-			return fmt.Errorf("name is too long")
+			return fmt.Errorf("название доски не должно быть длиннее 50 символов")
 		}
 
 		for _, board := range boards {
 			if board.Name == name {
-				return fmt.Errorf("board with name %s already exists", name)
+				return fmt.Errorf("доска с названием %s уже существует", name)
 			}
 		}
 	}
