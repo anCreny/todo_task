@@ -109,12 +109,6 @@ func serveWebPage(ctx *gin.Context, fileName string) {
 		return
 	}
 
-	mobileFileName := "./web/mobile/" + fileName
-	if fileExists(mobileFileName) {
-		ctx.File(mobileFileName)
-		return
-	}
-
 	page, err := os.ReadFile(desktopFileName)
 	if err != nil {
 		ctx.Status(http.StatusNotFound)
